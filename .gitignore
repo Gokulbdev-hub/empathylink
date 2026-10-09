@@ -8,9 +8,9 @@ node_modules
 /.nyc_output
 
 # Production Builds
-/.next/
-/out/
-/build
+.next/
+out/
+build/
 dist/
 *.tsbuildinfo
 
