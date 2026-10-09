@@ -378,3 +378,53 @@ export interface ServerToClientEvents {
   'heartlink:update': (data: { matchId: string; status: MatchStatus; candidatePersona: PersonaSummary }) => void;
   'error:socket': (error: { code: string; message: string }) => void;
 }
+
+// ==========================================
+// 12. Birthday Sanctuary & Worldwide Wishes
+// ==========================================
+
+export type BirthdayGiftType =
+  | 'STARLIGHT_CANDLE'
+  | 'COSMIC_CAKE'
+  | 'AURORA_LANTERN'
+  | 'GOLDEN_LOTUS'
+  | 'WARM_COCOA'
+  | 'DREAM_BALLOON'
+  | 'CONSTELLATION_STAR';
+
+export type BirthdayWishVibe =
+  | 'PEACEFUL'
+  | 'WARM_HUG'
+  | 'COSMIC_COURAGE'
+  | 'JOYFUL'
+  | 'GENTLE_SOLACE';
+
+export interface BirthdayCelebrant {
+  id: string;
+  userId: string;
+  persona: PersonaSummary;
+  timezone: string;
+  locationLabel: string;
+  mood: string;
+  wishNote?: string;
+  wishesCount: number;
+  candlesBlown: number;
+  isCurrentUser?: boolean;
+  createdAt: string;
+}
+
+export interface BirthdayWish {
+  id: string;
+  celebrantId: string;
+  senderPersona: PersonaSummary;
+  gift: BirthdayGiftType;
+  vibe: BirthdayWishVibe;
+  message: string;
+  createdAt: string;
+}
+
+export interface BirthdayStats {
+  todayCelebrantsCount: number;
+  totalWishesSentToday: number;
+  participatingCountries: number;
+}

@@ -12,11 +12,12 @@ import {
   Sparkles,
   ArrowRight,
   Lock,
-  Users,
-  Feather,
+  Cake,
+  Flame,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { PersonaSummary } from '@empathylink/types';
+import { ActionButton } from '@/components/ui/ActionButton';
 
 export default function HomePage() {
   const [persona, setPersona] = useState<PersonaSummary>({
@@ -66,23 +67,24 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
-            Connect anonymously through your DreamVerse persona, discover kindred peers in HeartLink, join quiet Echo Rooms, and safely process your thoughts with private journaling and Sol.
+            Connect anonymously through your DreamVerse persona, discover kindred peers in HeartLink, join quiet Echo Rooms, safely process your thoughts with Sol, and celebrate birthdays together across the world.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Link
-              href="/heartlink"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-empathy-violet to-empathy-cyan text-white text-sm font-bold shadow-lg shadow-empathy-violet/25 hover:opacity-95 transition-opacity"
-            >
-              <Heart className="w-4 h-4 fill-white" />
-              <span>Find Kindred Peer</span>
+            <Link href="/birthday">
+              <ActionButton variant="starlight" size="md" icon={<Cake className="w-4 h-4 text-slate-950" />}>
+                Birthday Sanctuary
+              </ActionButton>
             </Link>
-            <Link
-              href="/sol"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-card hover:bg-slate-700/60 border border-surface-border text-slate-200 text-sm font-semibold transition-colors"
-            >
-              <Bot className="w-4 h-4 text-empathy-cyan" />
-              <span>Reflect with Sol</span>
+            <Link href="/heartlink">
+              <ActionButton variant="cosmic" size="md" icon={<Heart className="w-4 h-4 fill-white" />}>
+                Find Kindred Peer
+              </ActionButton>
+            </Link>
+            <Link href="/sol">
+              <ActionButton variant="glass" size="md" icon={<Bot className="w-4 h-4 text-empathy-cyan" />}>
+                Reflect with Sol
+              </ActionButton>
             </Link>
           </div>
         </div>
@@ -171,8 +173,25 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Shortcuts Grid: HeartLink, Explore Circles, Dream Journal, Wellness */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Shortcuts Grid: Birthday, HeartLink, Explore, Dream Journal, Sol */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Birthday Sanctuary */}
+        <Link
+          href="/birthday"
+          className="group p-5 rounded-2xl bg-surface-card border border-amber-500/30 hover:border-amber-400 transition-all hover:shadow-lg hover:shadow-amber-500/10"
+        >
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+            <Cake className="w-5 h-5 text-amber-400" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <h4 className="font-bold text-white text-base group-hover:text-amber-400 transition-colors">Birthday</h4>
+            <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-ping" />
+          </div>
+          <p className="text-xs text-slate-400 mt-1">
+            Worldwide birthday wishes and starlight candles across all continents.
+          </p>
+        </Link>
+
         {/* HeartLink Matching */}
         <Link
           href="/heartlink"
@@ -211,7 +230,7 @@ export default function HomePage() {
           </div>
           <h4 className="font-bold text-white text-base group-hover:text-empathy-rose transition-colors">Dream Journal</h4>
           <p className="text-xs text-slate-400 mt-1">
-            Private encrypted thought sanctuary with optional on-demand Sol reflection.
+            Private encrypted thought sanctuary with on-demand Sol reflection.
           </p>
         </Link>
 
@@ -225,7 +244,7 @@ export default function HomePage() {
           </div>
           <h4 className="font-bold text-white text-base group-hover:text-empathy-emerald transition-colors">Sol Assistant</h4>
           <p className="text-xs text-slate-400 mt-1">
-            Non-clinical, non-dependent empathetic AI reflection & active listener.
+            Non-clinical empathetic AI reflection and active listening partner.
           </p>
         </Link>
       </div>

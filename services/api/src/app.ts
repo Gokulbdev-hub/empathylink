@@ -23,6 +23,7 @@ import { reportRouter, blockRouter } from './routes/safety.routes';
 import { notificationsRouter } from './routes/notifications.routes';
 import { adminRouter } from './routes/admin.routes';
 import { mediaRouter } from './routes/media.routes';
+import { birthdayRouter } from './routes/birthday.routes';
 
 export function createApp() {
   const app = express();
@@ -119,6 +120,7 @@ export function createApp() {
   apiV1.use('/notifications', notificationsRouter);
   apiV1.use('/admin', adminRouter);
   apiV1.use('/media', mediaRouter);
+  apiV1.use('/birthday', birthdayRouter);
 
   app.use('/api/v1', apiV1);
 

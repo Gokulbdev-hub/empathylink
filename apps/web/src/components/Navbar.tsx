@@ -19,8 +19,10 @@ import {
   Menu,
   X,
   ShieldCheck,
+  Cake,
 } from 'lucide-react';
 import { CrisisModal } from './CrisisModal';
+import { EmpathyLogo } from './EmpathyLogo';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -30,6 +32,7 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'HOME', href: '/', icon: Sparkles },
+    { name: 'BIRTHDAY', href: '/birthday', icon: Cake, isSpecial: true },
     { name: 'HEARTLINK', href: '/heartlink', icon: Heart },
     { name: 'EXPLORE', href: '/explore', icon: Compass },
     { name: 'DREAMVERSE', href: '/dreamverse', icon: Globe2 },
@@ -45,18 +48,10 @@ export function Navbar() {
     <>
       <header className="sticky top-0 z-40 w-full border-b border-surface-border bg-background/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo & Tagline */}
+          {/* Bespoke Logo */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-empathy-violet to-empathy-cyan flex items-center justify-center shadow-lg shadow-empathy-violet/20 group-hover:scale-105 transition-transform">
-                <Heart className="w-5 h-5 text-white fill-white/20" />
-              </div>
-              <div>
-                <span className="font-extrabold text-base tracking-tight text-white block">EmpathyLink</span>
-                <span className="text-[10px] text-slate-400 block -mt-0.5 tracking-wider hidden sm:block">
-                  ALWAYS FOR YOU
-                </span>
-              </div>
+            <Link href="/" className="group" aria-label="EmpathyLink Home">
+              <EmpathyLogo size="md" showText={true} />
             </Link>
           </div>
 
@@ -69,14 +64,21 @@ export function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                  className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${
                     isActive
-                      ? 'bg-empathy-violet/15 text-empathy-cyan border border-empathy-cyan/30 shadow-sm'
+                      ? item.isSpecial
+                        ? 'bg-gradient-to-r from-amber-500/20 to-pink-500/20 text-amber-300 border border-amber-400/40 shadow-sm'
+                        : 'bg-empathy-violet/15 text-empathy-cyan border border-empathy-cyan/30 shadow-sm'
+                      : item.isSpecial
+                      ? 'text-amber-300/90 hover:text-amber-200 hover:bg-amber-500/10'
                       : 'text-slate-300 hover:text-white hover:bg-surface-card'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className={`w-3.5 h-3.5 ${item.isSpecial ? 'text-amber-400 animate-bounce' : ''}`} />
                   <span>{item.name}</span>
+                  {item.isSpecial && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-ping" />
+                  )}
                 </Link>
               );
             })}

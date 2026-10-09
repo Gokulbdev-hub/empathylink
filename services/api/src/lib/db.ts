@@ -18,6 +18,11 @@ import {
   ReportStatus,
   ReportReason,
   ID,
+  BirthdayCelebrant,
+  BirthdayWish,
+  BirthdayGiftType,
+  BirthdayWishVibe,
+  BirthdayStats,
 } from '@empathylink/types';
 import { DREAMVERSE_UNIVERSES, INITIAL_ECHO_ROOMS } from '@empathylink/config';
 import { generatePublicCode } from './crypto';
@@ -47,6 +52,8 @@ export class DatabaseStore {
   public moderationEvents = new Map<string, any>();
   public notifications = new Map<string, any[]>(); // userId -> notifications[]
   public securityEvents = new Map<string, any[]>();
+  public birthdayCelebrants = new Map<string, BirthdayCelebrant>();
+  public birthdayWishes = new Map<string, BirthdayWish[]>();
 
   constructor() {
     this.seedDefaults();
@@ -144,6 +151,74 @@ export class DatabaseStore {
       });
       this.circleMembers.set(c.id, new Set([c.creatorId]));
       this.circleMessages.set(c.id, []);
+    });
+
+    // Seed Worldwide Birthday Celebrants
+    const demoCelebrants = [
+      {
+        id: 'cel_aoi_tokyo',
+        userId: 'usr_kaito',
+        locationLabel: 'Tokyo, Japan',
+        mood: 'Stepping into a new year of life with quiet hope 🌸',
+        wishNote: 'Starting college soon and feel a bit nervous. Sending peace to anyone who needs it today!',
+        wishesCount: 4,
+        candlesBlown: 12,
+      },
+      {
+        id: 'cel_elena_madrid',
+        userId: 'usr_lyra',
+        locationLabel: 'Madrid, Spain',
+        mood: 'Birthdays can feel a little quiet. Grateful for this space 🕯️',
+        wishNote: 'Living far from family right now. A gentle reminder that kindness travels across oceans.',
+        wishesCount: 6,
+        candlesBlown: 18,
+      },
+      {
+        id: 'cel_sora_seoul',
+        userId: 'usr_nova',
+        locationLabel: 'Seoul, South Korea',
+        mood: 'Another orbit around the sun! Radiating neon joy 🌌',
+        wishNote: 'Coding all night to celebrate. May this year bring clarity and deeper connections to all of us.',
+        wishesCount: 5,
+        candlesBlown: 9,
+      },
+    ];
+
+    demoCelebrants.forEach((c) => {
+      const persona = this.getPersonaByUserId(c.userId)!;
+      this.birthdayCelebrants.set(c.id, {
+        id: c.id,
+        userId: c.userId,
+        persona,
+        timezone: 'UTC',
+        locationLabel: c.locationLabel,
+        mood: c.mood,
+        wishNote: c.wishNote,
+        wishesCount: c.wishesCount,
+        candlesBlown: c.candlesBlown,
+        createdAt: new Date().toISOString(),
+      });
+
+      this.birthdayWishes.set(c.id, [
+        {
+          id: `wish_${c.id}_1`,
+          celebrantId: c.id,
+          senderPersona: this.getPersonaByUserId('usr_admin')!,
+          gift: 'STARLIGHT_CANDLE',
+          vibe: 'WARM_HUG',
+          message: 'Happy birthday kindred spirit! You are never alone in this vast universe. Keep shining brightly.',
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+        },
+        {
+          id: `wish_${c.id}_2`,
+          celebrantId: c.id,
+          senderPersona: this.getPersonaByUserId('usr_lyra')!,
+          gift: 'AURORA_LANTERN',
+          vibe: 'PEACEFUL',
+          message: 'Wishing you steady waters, deep breaths, and boundless wonder in your upcoming year.',
+          createdAt: new Date(Date.now() - 7200000).toISOString(),
+        },
+      ]);
     });
   }
 
@@ -672,6 +747,117 @@ export class DatabaseStore {
     const item = list.find((n) => n.id === notifId);
     if (item) item.isRead = true;
     return item;
+  }
+
+  // ==================== Birthday Sanctuary ====================
+  public getBirthdayCelebrants(currentUserId?: string): BirthdayCelebrant[] {
+    return Array.from(this.birthdayCelebrants.values()).map((c) => ({
+      ...c,
+      isCurrentUser: currentUserId ? c.userId === currentUserId : false,
+    }));
+  }
+
+  public getCelebrantById(celebrantId: string, currentUserId?: string): BirthdayCelebrant | null {
+    const c = this.birthdayCelebrants.get(celebrantId);
+    if (!c) return null;
+    return {
+      ...c,
+      isCurrentUser: currentUserId ? c.userId === currentUserId : false,
+    };
+  }
+
+  public registerBirthdayCelebration(
+    userId: string,
+    data: { locationLabel: string; mood: string; wishNote?: string }
+  ): BirthdayCelebrant {
+    const persona = this.getPersonaByUserId(userId)!;
+    for (const [id, c] of this.birthdayCelebrants.entries()) {
+      if (c.userId === userId) {
+        c.locationLabel = data.locationLabel;
+        c.mood = data.mood;
+        c.wishNote = data.wishNote;
+        this.birthdayCelebrants.set(id, c);
+        return { ...c, isCurrentUser: true };
+      }
+    }
+
+    const id = `cel_${crypto.randomUUID()}`;
+    const celebrant: BirthdayCelebrant = {
+      id,
+      userId,
+      persona,
+      timezone: 'UTC',
+      locationLabel: data.locationLabel || 'Somewhere on Earth',
+      mood: data.mood || 'Looking for warmth and connection',
+      wishNote: data.wishNote,
+      wishesCount: 0,
+      candlesBlown: 0,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.birthdayCelebrants.set(id, celebrant);
+    this.birthdayWishes.set(id, []);
+    return { ...celebrant, isCurrentUser: true };
+  }
+
+  public sendBirthdayWish(
+    senderUserId: string,
+    celebrantId: string,
+    data: { gift: BirthdayGiftType; vibe: BirthdayWishVibe; message: string }
+  ): BirthdayWish {
+    const celebrant = this.birthdayCelebrants.get(celebrantId);
+    if (!celebrant) throw new Error('Celebrant not found');
+
+    const senderPersona = this.getPersonaByUserId(senderUserId)!;
+    const wish: BirthdayWish = {
+      id: `wish_${crypto.randomUUID()}`,
+      celebrantId,
+      senderPersona,
+      gift: data.gift,
+      vibe: data.vibe,
+      message: data.message,
+      createdAt: new Date().toISOString(),
+    };
+
+    const wishes = this.birthdayWishes.get(celebrantId) || [];
+    wishes.unshift(wish);
+    this.birthdayWishes.set(celebrantId, wishes);
+
+    celebrant.wishesCount = wishes.length;
+    this.birthdayCelebrants.set(celebrantId, celebrant);
+
+    this.addNotification(celebrant.userId, {
+      title: '🌟 New Birthday Blessing Received!',
+      body: `${senderPersona.displayName} sent you a warm birthday wish!`,
+      type: 'BIRTHDAY_WISH',
+      url: '/birthday',
+    });
+
+    return wish;
+  }
+
+  public getWishesForCelebrant(celebrantId: string): BirthdayWish[] {
+    return this.birthdayWishes.get(celebrantId) || [];
+  }
+
+  public blowCelebrantCandle(celebrantId: string): BirthdayCelebrant | null {
+    const celebrant = this.birthdayCelebrants.get(celebrantId);
+    if (!celebrant) return null;
+    celebrant.candlesBlown = (celebrant.candlesBlown || 0) + 1;
+    this.birthdayCelebrants.set(celebrantId, celebrant);
+    return celebrant;
+  }
+
+  public getBirthdayStats(): BirthdayStats {
+    let totalWishes = 0;
+    for (const wishes of this.birthdayWishes.values()) {
+      totalWishes += wishes.length;
+    }
+    return {
+      todayCelebrantsCount: this.birthdayCelebrants.size,
+      totalWishesSentToday: totalWishes + 342,
+      participatingCountries: 48,
+    };
   }
 }
 

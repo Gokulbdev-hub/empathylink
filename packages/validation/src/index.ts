@@ -275,3 +275,40 @@ export const BlockUserSchema = z.object({
   blockedUserId: z.string().min(1),
   reason: z.string().max(255).optional(),
 });
+
+// ==========================================
+// 10. Birthday Sanctuary Schemas
+// ==========================================
+
+export const RegisterBirthdayCelebrationSchema = z.object({
+  locationLabel: z.string().min(2).max(100).default('Somewhere on Earth'),
+  mood: z.string().min(2).max(120).default('Looking for warmth and connection'),
+  wishNote: z.string().max(300).optional(),
+});
+
+export const SendBirthdayWishSchema = z.object({
+  celebrantId: z.string().min(1),
+  gift: z.enum([
+    'STARLIGHT_CANDLE',
+    'COSMIC_CAKE',
+    'AURORA_LANTERN',
+    'GOLDEN_LOTUS',
+    'WARM_COCOA',
+    'DREAM_BALLOON',
+    'CONSTELLATION_STAR',
+  ]),
+  vibe: z.enum([
+    'PEACEFUL',
+    'WARM_HUG',
+    'COSMIC_COURAGE',
+    'JOYFUL',
+    'GENTLE_SOLACE',
+  ]),
+  message: z.string().min(1, 'Please include a warm birthday message').max(500),
+});
+
+export const SolBirthdayBlessingSchema = z.object({
+  celebrantName: z.string().min(1).max(50).optional(),
+  universe: z.string().optional(),
+  mood: z.string().max(120).optional(),
+});
