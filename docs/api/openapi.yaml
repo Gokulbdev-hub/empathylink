@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: EmpathyLink Core REST API
+  description: Privacy-first social connection and emotional support platform API.
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000/api/v1
+    description: Local Development Server
+
+paths:
+  /health:
+    get:
+      summary: System Health Endpoint
+      responses:
+        '200':
+          description: Service is healthy.
+
+  /auth/register:
+    post:
+      summary: Register anonymous traveler account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 10 }
+                initialUniverse: { type: string, enum: [GAMING, MYTHOLOGY, CYBERPUNK, FANTASY, DEEP_OCEAN, TIME_TRAVEL, NATURE, ANIME] }
+                displayName: { type: string }
+      responses:
+        '201':
+          description: User and persona created successfully.
+
+  /auth/login:
+    post:
+      summary: Authenticate and receive JWT token pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: Authentication successful.
+
+  /persona:
+    get:
+      summary: Get active user's DreamVerse persona
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Persona returned.
+    put:
+      summary: Update persona attributes
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Persona updated.
+
+  /heartlink/requests:
+    post:
+      summary: Submit HeartLink peer connection request
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [intentDescription, topics]
+              properties:
+                intentDescription: { type: string }
+                topics: { type: array, items: { type: string } }
+                conversationStyle: { type: string }
+                availabilityWindow: { type: string }
+      responses:
+        '201':
+          description: Request created with candidate matches.
+
+  /journal:
+    get:
+      summary: Get user's private journal entries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of entries.
+    post:
+      summary: Create new journal entry
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Entry created.
+
+  /journal/{id}/reflect:
+    post:
+      summary: Explicitly trigger Sol AI reflection on a journal entry
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reflectionType]
+              properties:
+                reflectionType: { type: string, enum: [SUMMARIZE, ORGANIZE_THOUGHTS, KEY_IDEAS, ACTION_STEPS, GENTLE_REFLECTION, TRANSLATE, THOUGHT_MAP] }
+      responses:
+        '200':
+          description: AI reflection with explicit disclosure.
+
+  /sol/chat:
+    post:
+      summary: Conversational reflection with Sol AI assistant
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string }
+                tonePreference: { type: string, enum: [WARM, MINIMAL, ANALYTIC, CREATIVE] }
+      responses:
+        '200':
+          description: Sol reply with non-clinical disclaimer.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

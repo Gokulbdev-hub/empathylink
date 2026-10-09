@@ -1,0 +1,28 @@
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Copy root configurations and workspace manifests
+COPY package.json tsconfig.base.json ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/config/package.json ./packages/config/
+COPY packages/validation/package.json ./packages/validation/
+COPY packages/ui/package.json ./packages/ui/
+COPY services/ai/package.json ./services/ai/
+COPY services/matching/package.json ./services/matching/
+COPY services/chat/package.json ./services/chat/
+COPY services/moderation/package.json ./services/moderation/
+COPY services/notifications/package.json ./services/notifications/
+COPY services/api/package.json ./services/api/
+COPY prisma ./prisma/
+
+RUN npm install
+
+COPY packages ./packages
+COPY services ./services
+
+RUN npm run build --workspaces --if-present
+
+EXPOSE 4000
+
+CMD ["node", "services/api/dist/index.js"]

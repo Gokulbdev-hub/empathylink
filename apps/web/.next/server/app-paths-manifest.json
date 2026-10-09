@@ -1,0 +1,6 @@
+{
+  "/page": "app/page.js",
+  "/heartlink/page": "app/heartlink/page.js",
+  "/sol/page": "app/sol/page.js",
+  "/create/page": "app/create/page.js"
+}

@@ -1,0 +1,639 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// 1. Identity, Auth & Devices
+// ==========================================
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  passwordHash     String
+  role             UserRole  @default(USER)
+  isVerified       Boolean   @default(true)
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean   @default(false)
+  isSuspended      Boolean   @default(false)
+  suspendedUntil   DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relationships
+  persona               Persona?
+  privacySettings       PrivacySettings?
+  sessions              Session[]
+  devices               Device[]
+  heartLinkRequests     HeartLinkRequest[]
+  conversations         ConversationMember[]
+  circleMemberships     CircleMember[]
+  echoRoomMemberships   EchoRoomMember[]
+  journalEntries        JournalEntry[]
+  moodEntries           MoodEntry[]
+  wellnessSessions      WellnessSession[]
+  ideaVaultItems        IdeaVaultItem[]
+  memoryCapsules        MemoryCapsule[]
+  reportsSubmitted      Report[]             @relation("ReportsSubmitted")
+  blocksInitiated       Block[]              @relation("BlocksInitiated")
+  blocksReceived        Block[]              @relation("BlocksReceived")
+  notifications         Notification[]
+  securityEvents        SecurityEvent[]
+  moderationEvents      ModerationEvent[]    @relation("ModeratedByUser")
+
+  @@index([email])
+  @@index([deletedAt])
+}
+
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId     String?
+  device       Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  refreshTokenHash String @unique
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  isRevoked    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  lastActiveAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+}
+
+model Device {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceName String
+  deviceType String    @default("web") // web, ios, android
+  pushToken  String?
+  lastSeenAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  sessions   Session[]
+
+  @@index([userId])
+}
+
+model PrivacySettings {
+  id                              String   @id @default(uuid())
+  userId                          String   @unique
+  user                            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  allowSolJournalReflection       Boolean  @default(true)
+  allowHeartLinkMatching          Boolean  @default(true)
+  profileVisibility               String   @default("UNIVERSE_ONLY") // UNIVERSE_ONLY, ANONYMOUS_CIRCLES, PRIVATE
+  showOnlineStatus                Boolean  @default(true)
+  allowDirectMessagesFrom         String   @default("MATCHES_ONLY")  // MATCHES_ONLY, CIRCLES_AND_MATCHES, NOBODY
+  ephemeralMessagesDefaultTtlSecs Int      @default(0)
+  requirePasscodeForJournal       Boolean  @default(false)
+  journalPasscodeHash             String?
+  updatedAt                       DateTime @updatedAt
+}
+
+model SecurityEvent {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  eventType  String   // LOGIN_SUCCESS, LOGIN_FAIL, 2FA_ENABLE, PASSWORD_RESET, ACCOUNT_DELETE_REQUEST
+  ipAddress  String?
+  userAgent  String?
+  metadata   String?  // JSON string
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+// ==========================================
+// 2. Persona & DreamVerse
+// ==========================================
+
+model Persona {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName   String    // e.g., "Nova"
+  publicCode    String    @unique // e.g., "EL-CY-58291"
+  universeKey   String    // GAMING, MYTHOLOGY, CYBERPUNK, FANTASY, DEEP_OCEAN, TIME_TRAVEL, NATURE, ANIME
+  lifestyle     String    // e.g. "Deckrunner"
+  lifetimePath  String    // e.g. "Augmented Lifespan"
+  dreamTheme    String    // e.g. "System Disconnect"
+  aura          String    // e.g. "Neon Violet"
+  title         String    // e.g. "Neon Wanderer"
+  symbols       String[]  // JSON array of symbolic emblems
+  motto         String    // e.g. "Your code writes tomorrow."
+  bio           String?
+  avatarMediaId String?
+  avatarMedia   Media?    @relation(fields: [avatarMediaId], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sentMessages        Message[]
+  circleMessages      CircleMessage[]
+  circlesCreated      Circle[]
+  heartLinkCandidates HeartLinkMatch[] @relation("CandidatePersona")
+
+  @@index([universeKey])
+  @@index([publicCode])
+}
+
+model Universe {
+  id            String         @id // e.g. "CYBERPUNK"
+  name          String
+  tagline       String
+  description   String
+  primaryColor  String
+  secondaryColor String
+  aura          String
+  symbols       String[]
+  motto         String
+  createdAt     DateTime       @default(now())
+
+  lifestyles    Lifestyle[]
+  lifetimePaths LifetimePath[]
+  dreamThemes   DreamTheme[]
+}
+
+model Lifestyle {
+  id          String   @id @default(uuid())
+  universeId  String
+  universe    Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([universeId])
+}
+
+model LifetimePath {
+  id          String   @id @default(uuid())
+  universeId  String
+  universe    Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([universeId])
+}
+
+model DreamTheme {
+  id          String   @id @default(uuid())
+  universeId  String
+  universe    Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([universeId])
+}
+
+// ==========================================
+// 3. HeartLink Matching
+// ==========================================
+
+enum MatchStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  EXPIRED
+}
+
+model HeartLinkRequest {
+  id                  String             @id @default(uuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  intentDescription   String
+  desiredUniverse     String?
+  topics              String[]
+  languages           String[]
+  conversationStyle   String             // CASUAL, DEEP_DIVE, SILENT_LISTENER, STORYTELLER, REFLECTIVE
+  availabilityWindow  String
+  timeZone            String
+  isActive            Boolean            @default(true)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  matches             HeartLinkMatch[]   @relation("RequestMatches")
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model HeartLinkMatch {
+  id                  String           @id @default(uuid())
+  requestId           String
+  request             HeartLinkRequest @relation("RequestMatches", fields: [requestId], references: [id], onDelete: Cascade)
+  candidatePersonaId  String
+  candidatePersona    Persona          @relation("CandidatePersona", fields: [candidatePersonaId], references: [id], onDelete: Cascade)
+  compatibilityScore  Float
+  reasons             String[]
+  sharedTopics        String[]
+  sharedLanguages     String[]
+  status              MatchStatus      @default(PENDING)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  conversation        Conversation?
+
+  @@index([requestId])
+  @@index([candidatePersonaId])
+  @@index([status])
+}
+
+// ==========================================
+// 4. Conversations & Real-Time Messaging
+// ==========================================
+
+enum ConversationType {
+  HEARTLINK_DIRECT
+  CIRCLE_PUBLIC
+  ECHO_ROOM
+}
+
+model Conversation {
+  id                 String               @id @default(uuid())
+  type               ConversationType     @default(HEARTLINK_DIRECT)
+  title              String?
+  universeKey        String?
+  heartLinkMatchId   String?              @unique
+  heartLinkMatch     HeartLinkMatch?      @relation(fields: [heartLinkMatchId], references: [id], onDelete: SetNull)
+  circleId           String?              @unique
+  circle             Circle?              @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  echoRoomId         String?              @unique
+  echoRoom           EchoRoom?            @relation(fields: [echoRoomId], references: [id], onDelete: Cascade)
+  e2eePendingNotice  Boolean              @default(true) // Explicit audit notice that full E2EE audit is in progress
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  members            ConversationMember[]
+  messages           Message[]
+
+  @@index([type])
+  @@index([updatedAt])
+}
+
+model ConversationMember {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime     @default(now())
+  lastReadAt     DateTime?
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id                 String            @id @default(uuid())
+  conversationId     String
+  conversation       Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderPersonaId    String
+  senderPersona      Persona           @relation(fields: [senderPersonaId], references: [id], onDelete: Cascade)
+  content            String            // Plaintext or encrypted relay envelope
+  isEncrypted        Boolean           @default(false)
+  mediaUrl           String?
+  mediaType          String?
+  ephemeralExpiresAt DateTime?
+  deletedAt          DateTime?
+  createdAt          DateTime          @default(now())
+
+  reactions          MessageReaction[]
+
+  @@index([conversationId])
+  @@index([senderPersonaId])
+  @@index([createdAt])
+  @@index([ephemeralExpiresAt])
+}
+
+model MessageReaction {
+  id        String   @id @default(uuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+}
+
+// ==========================================
+// 5. Circles & Echo Rooms
+// ==========================================
+
+enum CircleAccessMode {
+  OPEN
+  APPROVAL_REQUIRED
+  PRIVATE
+}
+
+model Circle {
+  id               String           @id @default(uuid())
+  name             String
+  description      String
+  universeKey      String
+  accessMode       CircleAccessMode @default(OPEN)
+  tags             String[]
+  creatorPersonaId String
+  creatorPersona   Persona          @relation(fields: [creatorPersonaId], references: [id], onDelete: Cascade)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  members          CircleMember[]
+  messages         CircleMessage[]
+  conversation     Conversation?
+
+  @@index([universeKey])
+  @@index([accessMode])
+}
+
+model CircleMember {
+  id        String   @id @default(uuid())
+  circleId  String
+  circle    Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("MEMBER") // ADMIN, MODERATOR, MEMBER
+  joinedAt  DateTime @default(now())
+
+  @@unique([circleId, userId])
+  @@index([userId])
+}
+
+model CircleMessage {
+  id              String   @id @default(uuid())
+  circleId        String
+  circle          Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  senderPersonaId String
+  senderPersona   Persona  @relation(fields: [senderPersonaId], references: [id], onDelete: Cascade)
+  content         String
+  mediaUrl        String?
+  deletedAt       DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([circleId])
+  @@index([createdAt])
+}
+
+model EchoRoom {
+  id                      String           @id @default(uuid())
+  title                   String
+  category                String           // CANT_SLEEP, CODING_TOGETHER, EXAM_STRESS, STARTUP_BRAINSTORM, MUSIC_LOVERS, MIDNIGHT_TALK
+  isSilentPresenceAllowed Boolean          @default(true)
+  expiresAt               DateTime?
+  createdAt               DateTime         @default(now())
+
+  members                 EchoRoomMember[]
+  conversation            Conversation?
+
+  @@index([category])
+}
+
+model EchoRoomMember {
+  id         String   @id @default(uuid())
+  echoRoomId String
+  echoRoom   EchoRoom @relation(fields: [echoRoomId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isSilent   Boolean  @default(false)
+  joinedAt   DateTime @default(now())
+
+  @@unique([echoRoomId, userId])
+  @@index([userId])
+}
+
+// ==========================================
+// 6. Dream Journal, Thoughts & Capsules
+// ==========================================
+
+model JournalEntry {
+  id          String                @id @default(uuid())
+  userId      String
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  content     String
+  moodTag     String                // CALM, REFLECTIVE, ENERGIZED, ANXIOUS, TIRED, GRATEFUL, SEEKING
+  universeTag String?
+  isLocked    Boolean               @default(false)
+  wordCount   Int                   @default(0)
+  deletedAt   DateTime?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  tags        JournalTag[]
+  reflections JournalAIReflection[]
+  thoughtMaps ThoughtMap[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model JournalTag {
+  id             String       @id @default(uuid())
+  journalEntryId String
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  name           String
+
+  @@index([journalEntryId])
+  @@index([name])
+}
+
+model JournalAIReflection {
+  id             String       @id @default(uuid())
+  journalEntryId String
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  reflectionType String       // SUMMARIZE, ORGANIZE_THOUGHTS, KEY_IDEAS, ACTION_STEPS, GENTLE_REFLECTION, TRANSLATE, THOUGHT_MAP
+  output         String
+  nodesJson      String?      // Graph nodes for thought mapping
+  edgesJson      String?      // Graph edges for thought mapping
+  disclaimer     String
+  createdAt      DateTime     @default(now())
+
+  @@index([journalEntryId])
+}
+
+model ThoughtMap {
+  id             String       @id @default(uuid())
+  journalEntryId String
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  title          String
+  graphData      String       // JSON serialization of nodes and links
+  createdAt      DateTime     @default(now())
+
+  @@index([journalEntryId])
+}
+
+model IdeaVaultItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  category  String   @default("GENERAL")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MemoryCapsule {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  unlockAt  DateTime
+  isOpened  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([unlockAt])
+}
+
+// ==========================================
+// 7. Wellness & Mood
+// ==========================================
+
+model MoodEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mood      String   // CALM, REFLECTIVE, ENERGIZED, ANXIOUS, TIRED, GRATEFUL, SEEKING
+  intensity Int      // 1 to 5
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model WellnessSession {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String   // BREATHING, GRATITUDE, HYDRATION, SLEEP_CHECK, GOAL_PLEDGE
+  durationSeconds Int
+  notes           String?
+  completedAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+// ==========================================
+// 8. Media, Reports, Moderation & Notifications
+// ==========================================
+
+model Media {
+  id          String    @id @default(uuid())
+  storageKey  String    @unique
+  url         String
+  fileName    String
+  mimeType    String
+  sizeBytes   Int
+  width       Int?
+  height      Int?
+  uploadedBy  String?
+  createdAt   DateTime  @default(now())
+
+  personas    Persona[]
+
+  @@index([storageKey])
+}
+
+enum ReportReason {
+  HARASSMENT
+  HATE_SPEECH
+  NON_CONSENSUAL_CONTENT
+  SCAM_OR_PHISHING
+  IMPERSONATION
+  MALICIOUS_SPAM
+  ILLEGAL_ABUSE
+  CRISIS_IMMEDIATE_DANGER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  ACTION_TAKEN
+  DISMISSED
+}
+
+model Report {
+  id           String       @id @default(uuid())
+  reporterId   String
+  reporter     User         @relation("ReportsSubmitted", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType   String       // MESSAGE, USER, CIRCLE, ROOM
+  targetId     String
+  reason       ReportReason
+  description  String?
+  status       ReportStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  moderationEvents ModerationEvent[]
+
+  @@index([status])
+  @@index([reporterId])
+  @@index([targetId])
+}
+
+model Block {
+  id            String   @id @default(uuid())
+  initiatorId   String
+  initiator     User     @relation("BlocksInitiated", fields: [initiatorId], references: [id], onDelete: Cascade)
+  blockedUserId String
+  blockedUser   User     @relation("BlocksReceived", fields: [blockedUserId], references: [id], onDelete: Cascade)
+  reason        String?
+  createdAt     DateTime @default(now())
+
+  @@unique([initiatorId, blockedUserId])
+  @@index([initiatorId])
+  @@index([blockedUserId])
+}
+
+model ModerationEvent {
+  id              String   @id @default(uuid())
+  reportId        String?
+  report          Report?  @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  moderatorId     String
+  moderator       User     @relation("ModeratedByUser", fields: [moderatorId], references: [id], onDelete: Cascade)
+  action          String   // WARN, MUTE, SUSPEND, BAN, DELETE_CONTENT, DISMISS
+  note            String
+  createdAt       DateTime @default(now())
+
+  @@index([moderatorId])
+  @@index([reportId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  type      String   // HEARTLINK_REQUEST, MATCH_ACCEPTED, MESSAGE_RECEIVED, CIRCLE_INVITE, CAPSULE_UNLOCKED, SAFETY_ALERT
+  actionUrl String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
