@@ -96,7 +96,7 @@ export function Navbar() {
                 </Link>
                 <Link
                   href="/register"
-                  className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r from-empathy-violet to-empathy-cyan hover:from-empathy-violet/90 hover:to-empathy-cyan/90 text-white text-xs font-bold transition-all shadow-sm"
+                  className="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-rose-500 via-amber-400 to-sky-400 hover:brightness-110 text-slate-950 text-xs font-black transition-all shadow-md shadow-rose-500/20 active:scale-95"
                 >
                   Join
                 </Link>

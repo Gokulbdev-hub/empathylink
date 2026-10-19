@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 export interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'cosmic' | 'sunset' | 'aurora' | 'emerald' | 'starlight' | 'glass' | 'ghost';
+  variant?: 'cosmic' | 'sunset' | 'aurora' | 'emerald' | 'starlight' | 'glass' | 'ghost' | 'radiant' | 'sky' | 'blush';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   icon?: React.ReactNode;
@@ -33,8 +33,14 @@ export function ActionButton({
   }[size];
 
   const variantStyles = {
+    radiant:
+      'bg-gradient-to-r from-pink-500 via-amber-400 to-sky-400 text-slate-950 font-black shadow-lg shadow-pink-500/25 hover:shadow-amber-400/40 hover:brightness-105 border border-amber-200/40',
+    blush:
+      'bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 text-white shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 hover:brightness-110 border border-white/10',
+    sky:
+      'bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:brightness-110 border border-white/10',
     cosmic:
-      'bg-gradient-to-r from-empathy-violet via-indigo-600 to-empathy-cyan text-white shadow-lg shadow-empathy-violet/25 hover:shadow-empathy-violet/40 hover:brightness-110 border border-white/10',
+      'bg-gradient-to-r from-pink-500 via-purple-600 to-sky-500 text-white shadow-lg shadow-pink-500/25 hover:shadow-sky-500/40 hover:brightness-110 border border-white/10',
     sunset:
       'bg-gradient-to-r from-rose-500 via-pink-600 to-amber-500 text-white shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 hover:brightness-110 border border-white/10',
     aurora:
@@ -42,7 +48,7 @@ export function ActionButton({
     emerald:
       'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 border border-white/10',
     starlight:
-      'bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 text-slate-950 font-black shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:brightness-105 border border-amber-300/40',
+      'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:brightness-105 border border-amber-200/50',
     glass:
       'bg-surface-card/80 hover:bg-slate-800/90 text-slate-200 hover:text-white border border-surface-border hover:border-slate-600 backdrop-blur-md shadow-sm',
     ghost:

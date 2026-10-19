@@ -23,6 +23,24 @@ module.exports = {
           rose: '#F43F5E',
           emerald: '#10B981',
           amber: '#F59E0B',
+          pink: {
+            DEFAULT: '#F43F5E',
+            light: '#FDA4AF',
+            vibrant: '#EC4899',
+            deep: '#BE123C',
+          },
+          yellow: {
+            DEFAULT: '#F59E0B',
+            light: '#FDE68A',
+            warm: '#FBBF24',
+            sun: '#EAB308',
+          },
+          blue: {
+            DEFAULT: '#0284C7',
+            sky: '#38BDF8',
+            glow: '#0EA5E9',
+            deep: '#0369A1',
+          },
         },
       },
       fontFamily: {

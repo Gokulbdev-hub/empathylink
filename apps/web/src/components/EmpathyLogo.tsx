@@ -24,7 +24,7 @@ export function EmpathyLogo({ size = 'md', showText = true, className = '' }: Em
         style={{ width: icon, height: icon }}
       >
         {/* Ambient Glow */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-empathy-violet via-empathy-cyan to-empathy-emerald opacity-50 blur-md group-hover:opacity-80 transition-opacity" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-rose-500 via-amber-400 to-sky-400 opacity-60 blur-md group-hover:opacity-90 transition-opacity" />
 
         {/* SVG Infinite Heart & Starlight Orbit */}
         <svg
@@ -35,13 +35,13 @@ export function EmpathyLogo({ size = 'md', showText = true, className = '' }: Em
         >
           <defs>
             <linearGradient id="empathyHeartGrad" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#8B5CF6" />
-              <stop offset="0.5" stopColor="#06B6D4" />
-              <stop offset="1" stopColor="#10B981" />
+              <stop stopColor="#F43F5E" />
+              <stop offset="0.5" stopColor="#F59E0B" />
+              <stop offset="1" stopColor="#38BDF8" />
             </linearGradient>
             <linearGradient id="starlightRing" x1="0" y1="24" x2="48" y2="24" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#F59E0B" stopOpacity="0.8" />
-              <stop offset="1" stopColor="#EC4899" stopOpacity="0.8" />
+              <stop stopColor="#FBBF24" stopOpacity="0.9" />
+              <stop offset="1" stopColor="#FB7185" stopOpacity="0.9" />
             </linearGradient>
           </defs>
 
@@ -86,9 +86,9 @@ export function EmpathyLogo({ size = 'md', showText = true, className = '' }: Em
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5">
             <span className={`font-black tracking-tight text-white block ${text} leading-tight`}>
-              Empathy<span className="text-transparent bg-clip-text bg-gradient-to-r from-empathy-cyan to-empathy-emerald">Link</span>
+              Empathy<span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-sky-400">Link</span>
             </span>
-            <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-empathy-emerald animate-pulse" />
+            <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400" />
           </div>
           <span className={`text-slate-400 font-semibold tracking-widest uppercase block ${sub}`}>
             Always for you

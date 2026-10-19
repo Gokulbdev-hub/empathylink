@@ -54,15 +54,19 @@ export default function HomePage() {
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Hero Welcome Banner */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-surface-card via-surface to-[#0B0F19] border border-surface-border p-6 sm:p-10 shadow-xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-empathy-violet/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Tri-color Ambient Glow: Pink, Warm Yellow, and Luminous Blue */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-10 left-1/3 w-72 h-72 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
+
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-empathy-violet/15 border border-empathy-violet/30 text-empathy-cyan text-xs font-semibold mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-rose-500/15 via-amber-400/15 to-sky-500/15 border border-rose-400/30 text-rose-300 text-xs font-semibold mb-4">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
             <span>Privacy-First Emotional Support</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
             We are there for you. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-empathy-violet via-empathy-cyan to-empathy-emerald">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-sky-400">
               Always for you.
             </span>
           </h1>
@@ -72,17 +76,17 @@ export default function HomePage() {
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link href="/birthday">
-              <ActionButton variant="starlight" size="md" icon={<Cake className="w-4 h-4 text-slate-950" />}>
+              <ActionButton variant="radiant" size="md" icon={<Cake className="w-4 h-4 text-slate-950" />}>
                 Birthday Sanctuary
               </ActionButton>
             </Link>
             <Link href="/heartlink">
-              <ActionButton variant="cosmic" size="md" icon={<Heart className="w-4 h-4 fill-white" />}>
+              <ActionButton variant="blush" size="md" icon={<Heart className="w-4 h-4 fill-white" />}>
                 Find Kindred Peer
               </ActionButton>
             </Link>
             <Link href="/sol">
-              <ActionButton variant="glass" size="md" icon={<Bot className="w-4 h-4 text-empathy-cyan" />}>
+              <ActionButton variant="sky" size="md" icon={<Bot className="w-4 h-4 text-white" />}>
                 Reflect with Sol
               </ActionButton>
             </Link>

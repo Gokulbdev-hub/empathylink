@@ -3,12 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --background: #0B0F19;
+  --background: #0A0E1A;
   --foreground: #F8FAFC;
+  --color-pink: #F43F5E;
+  --color-yellow: #F59E0B;
+  --color-blue: #0EA5E9;
 }
 
 body {
   background-color: var(--background);
+  background-image: 
+    radial-gradient(at 85% 15%, rgba(244, 63, 94, 0.12) 0px, transparent 55%),
+    radial-gradient(at 15% 85%, rgba(245, 158, 11, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 45%, rgba(14, 165, 233, 0.09) 0px, transparent 65%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;

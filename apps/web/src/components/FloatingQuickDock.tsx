@@ -49,29 +49,29 @@ export function FloatingQuickDock() {
             </span>
           </Link>
 
-          {/* HeartLink Peer Match */}
+          {/* HeartLink Peer Match (Warm Pink) */}
           <Link
             href="/heartlink"
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               pathname === '/heartlink'
-                ? 'bg-empathy-violet/20 text-empathy-violet border border-empathy-violet/30'
-                : 'text-slate-300 hover:text-white hover:bg-white/5'
+                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                : 'text-slate-300 hover:text-rose-300 hover:bg-rose-500/10'
             }`}
           >
-            <Heart className="w-4 h-4 text-empathy-violet hover:scale-110 transition-transform" />
+            <Heart className="w-4 h-4 text-rose-400 hover:scale-110 transition-transform fill-rose-500/20" />
             <span className="hidden sm:inline">Kindred</span>
           </Link>
 
-          {/* Sol AI Companion */}
+          {/* Sol AI Companion (Luminous Sky Blue) */}
           <Link
             href="/sol"
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
               pathname === '/sol'
-                ? 'bg-empathy-cyan/20 text-empathy-cyan border border-empathy-cyan/30'
-                : 'text-slate-300 hover:text-white hover:bg-white/5'
+                ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
+                : 'text-slate-300 hover:text-sky-300 hover:bg-sky-500/10'
             }`}
           >
-            <Bot className="w-4 h-4 text-empathy-cyan hover:scale-110 transition-transform" />
+            <Bot className="w-4 h-4 text-sky-400 hover:scale-110 transition-transform" />
             <span className="hidden sm:inline">Sol AI</span>
           </Link>
 
