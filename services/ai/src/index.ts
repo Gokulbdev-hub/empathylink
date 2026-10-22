@@ -253,7 +253,7 @@ CRITICAL BOUNDARIES & ETHICAL RULES:
         output = `Reading through "${title || 'your reflection'}", what stands out is your sincerity. Life often carries more complexity than we expect, yet writing it down gives shape to what previously felt amorphous.\n\nBe gentle with yourself as you navigate this. You don't need all the answers today; taking note of where you are right now is already enough.`;
         break;
       case 'TRANSLATE':
-        output = `[Translation to ${targetLang || 'Spanish'}]:\n"${title}"\n${content}`;
+        output = `[Translation to ${targetLanguage || 'Spanish'}]:\n"${title}"\n${content}`;
         break;
       case 'THOUGHT_MAP': {
         const map = this.generateDeterministicThoughtMap(title, content);

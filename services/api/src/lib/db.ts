@@ -592,8 +592,8 @@ export class DatabaseStore {
   public deleteJournalEntry(id: string, userId: string): boolean {
     const entry = this.getJournalEntryById(id);
     if (!entry || entry.userId !== userId) return false;
-    entry.deletedAt = new Date().toISOString();
-    this.journalEntries.set(id, entry);
+    (entry as any).deletedAt = new Date().toISOString();
+    this.journalEntries.delete(id);
     return true;
   }
 
