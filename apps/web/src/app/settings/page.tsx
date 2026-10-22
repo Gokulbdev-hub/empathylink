@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { ThemeSelector } from '@/components/ThemeSelector';
 
 export default function SettingsPage() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -114,6 +115,11 @@ export default function SettingsPage() {
           <LogOut className="w-4 h-4" />
           <span>Sign Out</span>
         </button>
+      </div>
+
+      {/* Visual Atmosphere & Themes */}
+      <div className="p-6 rounded-2xl bg-surface-card border border-surface-border shadow-xl">
+        <ThemeSelector mode="embedded" />
       </div>
 
       {/* Two-Factor Authentication */}

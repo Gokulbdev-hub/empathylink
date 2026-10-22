@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { CrisisModal } from './CrisisModal';
 import { EmpathyLogo } from './EmpathyLogo';
+import { ThemeSelector } from './ThemeSelector';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -114,6 +115,9 @@ export function Navbar() {
                 </button>
               </>
             )}
+            {/* Theme Atmosphere Selector */}
+            <ThemeSelector />
+
             {/* Quick Crisis Help */}
             <button
               onClick={() => setCrisisModalOpen(true)}
