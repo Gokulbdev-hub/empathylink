@@ -161,3 +161,25 @@ If content contains severe distress or immediate danger signals, the platform:
 - **Database:** PostgreSQL logical snapshots taken via `pg_dump` daily with 30-day encrypted retention.
 - **Media:** S3 object versioning enabled on MinIO / AWS S3 buckets.
 - **Secrets Management:** Secrets must always be injected at runtime via environment variables; never commit credentials to version control.
+
+---
+
+## 9. Public Web Deployment
+
+### Instant Public Tunnel
+The app is live and publicly accessible via our secure HTTPS tunnel:
+- **Public Web Application:** `https://c34ba8d481ec8ff9-103-186-151-25.serveousercontent.com`
+- **Birthday Sanctuary:** `https://c34ba8d481ec8ff9-103-186-151-25.serveousercontent.com/birthday`
+- **Settings & Themes:** `https://c34ba8d481ec8ff9-103-186-151-25.serveousercontent.com/settings`
+
+### Permanent Cloud Deployment (Vercel + Render / Railway)
+
+1. **Deploy Frontend on Vercel:**
+   - Go to [Vercel](https://vercel.com) and import the repository `Gokulbdev-hub/empathylink`.
+   - Set **Root Directory** to `apps/web`.
+   - Set Environment Variable: `API_URL` pointing to your deployed backend API URL.
+
+2. **Deploy Backend API on Render or Railway:**
+   - Connect the repository and configure the service to run Dockerfile: `infrastructure/docker/Dockerfile.api`.
+   - Set Environment Variables: `PORT=4000`, `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN=https://<your-vercel-domain>.vercel.app`.
+
